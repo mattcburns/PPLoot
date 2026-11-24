@@ -6,6 +6,7 @@
 ## X-Website: https://github.com/mattcburns/PPLoot
 ## X-Category: Rogue
 ## X-License: MIT
+## IconTexture: Interface\AddOns\PPLoot\Media\icon.tga
 ## SavedVariables: PPLootDB
 
 PPLoot.lua

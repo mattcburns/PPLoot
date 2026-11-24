@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/icon.png" alt="PPLoot Icon" width="160" />
+</p>
+
 # PPLoot
 
 A lightweight World of Warcraft Classic (`_forever_`) addon that automatically loots when you use **Pick Pocket**, while leaving your normal loot behavior untouched for everything else.

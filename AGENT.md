@@ -10,6 +10,8 @@ Guidance for AI coding agents working on **PPLoot**.
 
 - `PPLoot.toc` — Addon manifest targeting WoW `_forever_` (`## Interface: 16001, 11509`) with `## SavedVariables: PPLootDB`.
 - `PPLoot.lua` — Complete addon implementation (event handling, loot loop, floating indicator frame/animation, slash commands).
+- `Media/icon.tga` — 128×128 uncompressed 32-bit RGBA TGA icon referenced by `## IconTexture:` in `PPLoot.toc` (shipped in addon releases).
+- `assets/icon.png` — 512×512 PNG icon used in `README.md` and for CurseForge / Wago / WoWInterface listings (ignored by `.pkgmeta`).
 - `.pkgmeta` — `BigWigsMods/packager` packaging configuration (`package-as: PPLoot`).
 - `.github/workflows/release.yml` — GitHub Actions workflow that packages and publishes releases on `v*` tag pushes (or `workflow_dispatch`).
 - `README.md` — User and release documentation.
