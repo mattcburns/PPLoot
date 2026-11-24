@@ -6,3 +6,4 @@ ignore:
   - .github
   - .gitignore
   - .pkgmeta
+  - AGENT.md

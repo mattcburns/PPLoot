@@ -31,6 +31,32 @@ A lightweight World of Warcraft Classic (`_forever_`) addon that automatically l
    ```
 3. Restart World of Warcraft and make sure **PPLoot** is enabled in the AddOns menu.
 
+## Development & Releases
+
+Releases are packaged automatically via GitHub Actions using [`BigWigsMods/packager`](https://github.com/BigWigsMods/packager) (`.github/workflows/release.yml` and `.pkgmeta`).
+
+### Creating a new release
+
+1. Bump `## Version:` in `PPLoot.toc` and commit your changes.
+2. Create and push a version tag starting with `v`:
+   ```powershell
+   git tag -a v1.2.0 -m "Release v1.2.0"
+   git push origin main --tags
+   ```
+3. The **Package and Release** workflow will automatically build and upload `PPLoot-v1.2.0.zip` to a new GitHub Release.
+
+### Publishing to CurseForge / Wago / WoWInterface
+
+1. Create the addon project on CurseForge, Wago Addons, or WoWInterface and copy its project ID.
+2. Add the corresponding header(s) to `PPLoot.toc`:
+   ```
+   ## X-Curse-Project-ID: <id>
+   ## X-Wago-ID: <id>
+   ## X-WoWI-ID: <id>
+   ```
+3. Add the matching API token(s) in your GitHub repository under **Settings → Secrets and variables → Actions** (`CF_API_KEY`, `WAGO_API_TOKEN`, `WOWI_API_TOKEN`).
+4. Uncomment the corresponding environment variable(s) in `.github/workflows/release.yml`.
+
 ## License
 
 [MIT](LICENSE)
