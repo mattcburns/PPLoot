@@ -1,8 +1,8 @@
-## Interface: 16001, 11509
+## Interface: 16001
 ## Title: PPLoot
 ## Notes: Automatically loots when using Pick Pocket while keeping normal loot for everything else.
 ## Author: mattcburns
-## Version: 1.1.2
+## Version: 1.1.3
 ## X-Website: https://github.com/mattcburns/PPLoot
 ## X-Category: Rogue
 ## X-License: MIT
