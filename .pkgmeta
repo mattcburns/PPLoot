@@ -1,0 +1,8 @@
+package-as: PPLoot
+
+enable-nolib-creation: no
+
+ignore:
+  - .github
+  - .gitignore
+  - .pkgmeta
