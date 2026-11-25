@@ -16,7 +16,13 @@ local db = {
 local pickpocketExpireTime = 0
 local isPickpocketing = false
 local lootAnnounced = false
+local wasMovingOnCast = false
 local pendingTimer = nil
+
+local function IsMoving()
+    local speed = GetUnitSpeed("player")
+    return speed and speed > 0
+end
 
 -- Floating indicator frame
 local indicatorFrame = CreateFrame("Frame", "PPLootIndicatorFrame", UIParent)
@@ -129,8 +135,8 @@ local function LootAllSlots()
     end
 
     if not lootAnnounced then
-        lootAnnounced = true
         if #entries > 0 then
+            lootAnnounced = true
             -- Reverse so display matches original loot slot order
             local ordered = {}
             for i = #entries, 1, -1 do
@@ -138,7 +144,12 @@ local function LootAllSlots()
             end
             ShowIndicator("Pickpocketed: " .. table.concat(ordered, ", "), 1, 0.96, 0.41)
         elseif numItems == 0 then
-            ShowIndicator("Nothing picked", 0.7, 0.7, 0.7)
+            lootAnnounced = true
+            if wasMovingOnCast or IsMoving() then
+                ShowIndicator("Stop moving to pickpocket", 1, 0.65, 0.2)
+            else
+                ShowIndicator("Nothing picked", 0.7, 0.7, 0.7)
+            end
         end
     end
 end
@@ -179,12 +190,18 @@ frame:SetScript("OnEvent", function(_, event, ...)
         if spellID == PICK_POCKET_SPELL_ID then
             pickpocketExpireTime = GetTime() + LOOT_WINDOW_TIMEOUT
             lootAnnounced = false
+            wasMovingOnCast = IsMoving()
             CancelPendingTimer()
             pendingTimer = C_Timer.NewTimer(LOOT_WINDOW_TIMEOUT, function()
                 pendingTimer = nil
                 if not isPickpocketing and not lootAnnounced and pickpocketExpireTime > 0 then
                     pickpocketExpireTime = 0
-                    ShowIndicator("Nothing picked", 0.7, 0.7, 0.7)
+                    if wasMovingOnCast or IsMoving() then
+                        ShowIndicator("Stop moving to pickpocket", 1, 0.65, 0.2)
+                    else
+                        ShowIndicator("Nothing picked", 0.7, 0.7, 0.7)
+                    end
+                    wasMovingOnCast = false
                 end
             end)
         end
@@ -195,9 +212,17 @@ frame:SetScript("OnEvent", function(_, event, ...)
             LootAllSlots()
         end
     elseif event == "LOOT_CLOSED" then
+        if (isPickpocketing or GetTime() <= pickpocketExpireTime) and not lootAnnounced then
+            if wasMovingOnCast or IsMoving() then
+                ShowIndicator("Stop moving to pickpocket", 1, 0.65, 0.2)
+            else
+                ShowIndicator("Nothing picked", 0.7, 0.7, 0.7)
+            end
+        end
         isPickpocketing = false
         pickpocketExpireTime = 0
         lootAnnounced = false
+        wasMovingOnCast = false
         CancelPendingTimer()
     elseif event == "UI_ERROR_MESSAGE" then
         local _, message = ...
@@ -209,14 +234,23 @@ frame:SetScript("OnEvent", function(_, event, ...)
         if (ERR_ALREADY_PICKPOCKETED and message == ERR_ALREADY_PICKPOCKETED) or lower:find("pockets picked") then
             CancelPendingTimer()
             pickpocketExpireTime = 0
+            wasMovingOnCast = false
             ShowIndicator("Already pickpocketed", 1, 0.65, 0.2)
         elseif (SPELL_FAILED_TARGET_NO_POCKETS and message == SPELL_FAILED_TARGET_NO_POCKETS) or lower:find("no pockets") then
             CancelPendingTimer()
             pickpocketExpireTime = 0
+            wasMovingOnCast = false
             ShowIndicator("No pockets to pick", 0.7, 0.7, 0.7)
+        elseif (isPickpocketing or GetTime() <= pickpocketExpireTime) and ((ERR_LOOT_WHILE_MOVING and message == ERR_LOOT_WHILE_MOVING) or lower:find("while moving")) then
+            CancelPendingTimer()
+            pickpocketExpireTime = 0
+            wasMovingOnCast = false
+            lootAnnounced = true
+            ShowIndicator("Stop moving to pickpocket", 1, 0.65, 0.2)
         elseif (isPickpocketing or GetTime() <= pickpocketExpireTime) and lower:find("no loot") then
             CancelPendingTimer()
             pickpocketExpireTime = 0
+            wasMovingOnCast = false
             lootAnnounced = true
             ShowIndicator("Nothing picked", 0.7, 0.7, 0.7)
         end
@@ -238,6 +272,7 @@ SlashCmdList["PPLOOT"] = function(msg)
         isPickpocketing = false
         pickpocketExpireTime = 0
         lootAnnounced = false
+        wasMovingOnCast = false
         CancelPendingTimer()
         PrintStatus()
     elseif cmd == "text" or cmd == "visual" or cmd == "indicator" then
